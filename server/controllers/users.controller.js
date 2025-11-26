@@ -172,7 +172,5 @@ export async function loginController(request, response) {
             error : true,
             success : false
         })
-    }
-
-    
+    }    
 }
