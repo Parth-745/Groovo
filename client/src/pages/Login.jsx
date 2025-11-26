@@ -94,11 +94,16 @@
 // }
 
 // export default Login
-
 import { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+
+
+  const navigate = useNavigate();
+
+
   const [data, setData] = useState({
     email: '',
     password: '',
@@ -118,6 +123,33 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/user/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Login Successful!");
+
+        // redirect to home or dashboard
+        
+        navigate("/");
+        
+      } else {
+        alert(result.message || "Login failed");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Try again later.");
+    }
   };
 
   return (
@@ -136,7 +168,7 @@ const Login = () => {
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Email Input */}
+              {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-slate-700 block">
                   Email
@@ -157,7 +189,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Password */}
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium text-slate-700 block">
                   Password
@@ -175,6 +207,7 @@ const Login = () => {
                     onChange={handleChange}
                     placeholder="Enter your password"
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
@@ -183,17 +216,15 @@ const Login = () => {
                     {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                   </button>
                 </div>
+
                 <div className="flex justify-end">
-                  <a
-                    href="/forgot-password"
-                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
-                  >
+                  <a href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
                     Forgot password?
                   </a>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 disabled={!valideValue}
                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2 group ${
@@ -212,7 +243,7 @@ const Login = () => {
             <div className="mt-8 text-center">
               <p className="text-slate-600">
                 Don't have an account?{' '}
-                <a href="/register" className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                <a href="/register" className="font-semibold text-emerald-600 hover:text-emerald-700">
                   Register
                 </a>
               </p>
