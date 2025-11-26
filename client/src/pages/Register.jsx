@@ -190,7 +190,11 @@ const Register = () => {
 
       if (apiData.success) {
         toast.success("Registration Successful! Check your Email");
-        navigate("/login");
+        navigate("/verify-otp", {
+  state: {
+    email: data.email
+  }
+});
       } else {
         toast.error(apiData.message || "Registration failed");
       }

@@ -7,4 +7,7 @@ const verifyEmailTemplate = ({name, url}) => {
     </a>
     `
 }
+
+
+
 export default verifyEmailTemplate;
