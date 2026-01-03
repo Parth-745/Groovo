@@ -94,19 +94,18 @@
 // }
 
 // export default Login
-import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-
-
   const navigate = useNavigate();
-
+  const { login } = useAuth();
 
   const [data, setData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -123,32 +122,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/user/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Login Successful!");
-
-        // redirect to home or dashboard
-        
-        navigate("/");
-        
-      } else {
-        alert(result.message || "Login failed");
-      }
-
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Try again later.");
+    const res = await login(data.email, data.password);
+    if (res.success) {
+      navigate("/");
+    } else {
+      alert(res.message);
     }
   };
 

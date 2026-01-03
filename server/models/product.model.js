@@ -1,63 +1,51 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema({
-    name : {
-        type : String,
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Product name is required"],
+      trim: true,
     },
-
-    image : {
-        type : Array,
-        default : []
+    description: {
+      type: String,
+      default: "",
     },
-
-    category : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "category"
+    price: {
+      type: Number,
+      required: [true, "Price is required"],
     },
-
-    subCategory : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "subCategory"
+    discount: {
+      type: Number,
+      default: 0,
     },
-
-    unit : {
-        type : String,
-        default : ""
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "category",
+      required: true,
     },
-
-    stock : {
-        type : Number,
-        default : 0
+    stock: {
+      type: Number,
+      default: 0,
     },
-
-    price : {
-        type : Number,
-        default : null
+    imageURL: {
+      type: [String],
+      default: [],
     },
-
-    discount : {
-        type : Number,
-        default : null
+    isActive: {
+      type: Boolean,
+      default: true,
     },
-
-    description : {
-        type : String,
-        default : ""
+    ratings: {
+      type: Number,
+      default: 0,
     },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-    more_details : {
-        type : Object,
-        default : {}
-    },
+const ProductModel = mongoose.model("product", productSchema);
 
-    publish : {
-        type : Boolean,
-        default : false
-    }
-},{
-    timestamps : true
-})
-
-const ProductModel = mongoose.model("product",productSchema)
-
-export default ProductModel
+export default ProductModel;

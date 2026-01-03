@@ -153,106 +153,91 @@
 
 
 
-import React, { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { BsCart4 } from "react-icons/bs";
-import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
-
-// ✅ Import Logo
-import Logo from '../assets/groovo_logo.png';
+import Logo from "../assets/groovo_logo.png";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 const Header = () => {
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
   const navigate = useNavigate();
-
+  const { user, logout } = useAuth();
+  const { items } = useCart();
+  const totalQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
   const [openUserMenu, setOpenUserMenu] = useState(false);
-  const [openCartSection, setOpenCartSection] = useState(false);
 
-  const redirectToLoginPage = () => {
-    navigate("/login");
-  };
-
-  const handleCloseUserMenu = () => {
-    setOpenUserMenu(false);
-  };
-
-  const handleMobileUser = () => {
-    navigate("/login");
-  };
+  const handleLogin = () => navigate("/login");
+  const handleCart = () => navigate("/cart");
 
   return (
-    <header className='h-24 lg:h-20 lg:shadow-md sticky top-0 z-40 flex flex-col justify-center gap-1 bg-white'>
-      {
-        !(isSearchPage) && (
-          <div className='container mx-auto flex items-center px-2 justify-between'>
-            
-            {/* LOGO SECTION */}
-            <div className='h-full'>
-              <Link to="/" className="h-full flex justify-center items-center px-2">
-                <img
-                  src={Logo}
-                  alt="Groovo logo"
-                  className="h-14 w-auto object-contain lg:h-12"
-                />
-              </Link>
-            </div>
-
-            {/* Search Box (Disabled for now) */}
-            <div className='hidden lg:block'>
-              {/* <Search/> */}
-            </div>
-
-            {/* Login + Cart */}
-            <div>
-              {/* Mobile – User Icon */}
-              <button
-                className='text-neutral-600 lg:hidden'
-                onClick={handleMobileUser}>
-                <FaRegCircleUser size={26} />
-              </button>
-
-              {/* Desktop Options */}
-              <div className='hidden lg:flex items-center gap-10'>
-
-                {/* Login Button */}
-                <button
-                  onClick={redirectToLoginPage}
-                  className='text-lg px-2'>
-                  Login
-                </button>
-
-                {/* Cart Button */}
-                <button
-                  onClick={() => setOpenCartSection(true)}
-                  className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'
-                >
-                  <div className='animate-bounce'>
-                    <BsCart4 size={26} />
-                  </div>
-                  <div className='font-semibold text-sm'>
-                    My Cart
-                  </div>
-                </button>
-              </div>
-            </div>
-
+    <header className="h-24 lg:h-20 lg:shadow-md sticky top-0 z-40 flex flex-col justify-center gap-1 bg-white">
+      {!isSearchPage && (
+        <div className="container mx-auto flex items-center px-2 justify-between">
+          <div className="h-full">
+            <Link to="/" className="h-full flex justify-center items-center px-2">
+              <img src={Logo} alt="Groovo logo" className="h-14 w-auto object-contain lg:h-12" />
+            </Link>
           </div>
-        )
-      }
 
-      {/* Mobile Search Section */}
-      <div className='container mx-auto px-2 lg:hidden'>
-        {/* <Search/> */}
-      </div>
+          <div className="hidden lg:block">{/* search placeholder */}</div>
 
-      {/* Cart Popup (Disabled for now) */}
-      {/* {
-        openCartSection && (
-          <DisplayCartItem close={() => setOpenCartSection(false)} />
-        )
-      } */}
+          <div className="hidden lg:flex items-center gap-6">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setOpenUserMenu((p) => !p)}
+                  className="flex items-center gap-2"
+                >
+                  <FaRegCircleUser size={22} />
+                  <span className="text-sm">{user.name}</span>
+                </button>
+                {openUserMenu && (
+                  <div className="absolute right-0 mt-2 bg-white border rounded shadow p-3 text-sm space-y-2">
+                    <Link to="/profile" onClick={() => setOpenUserMenu(false)}>
+                      Profile
+                    </Link>
+                    <Link to="/orders" onClick={() => setOpenUserMenu(false)}>
+                      Orders
+                    </Link>
+                    {user.role === "admin" && (
+                      <Link to="/admin/dashboard" onClick={() => setOpenUserMenu(false)}>
+                        Admin
+                      </Link>
+                    )}
+                    <button onClick={logout} className="text-red-600 block">
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button onClick={handleLogin} className="text-lg px-2">
+                Login
+              </button>
+            )}
+
+            <button
+              onClick={handleCart}
+              className="flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white"
+            >
+              <div className="animate-bounce">
+                <BsCart4 size={26} />
+              </div>
+              <div className="font-semibold text-sm">{totalQty ? `${totalQty} items` : "My Cart"}</div>
+            </button>
+          </div>
+
+          <button className="text-neutral-600 lg:hidden" onClick={handleLogin}>
+            <FaRegCircleUser size={26} />
+          </button>
+        </div>
+      )}
+
+      <div className="container mx-auto px-2 lg:hidden">{/* mobile search placeholder */}</div>
     </header>
   );
 };

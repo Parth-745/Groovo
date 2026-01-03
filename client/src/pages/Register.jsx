@@ -135,19 +135,21 @@
 // export default Register
 
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
   const [data, setData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
 
-  
+  const { register } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -164,6 +166,7 @@ const Register = () => {
   };
 
   const valideValue = Object.values(data).every((el) => el);
+  const isPhoneValid = data.phone.trim().length >= 7;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -173,33 +176,23 @@ const Register = () => {
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
-      });
+    if (!isPhoneValid) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
 
-      const apiData = await res.json();
+    const res = await register({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: data.password,
+    });
 
-      if (apiData.success) {
-        toast.success("Registration Successful! Check your Email");
-        navigate("/verify-otp", {
-  state: {
-    email: data.email
-  }
-});
-      } else {
-        toast.error(apiData.message || "Registration failed");
-      }
-    } catch (error) {
-      toast.error("Server error: " + error.message);
+    if (res.success) {
+      toast.success("Registration Successful! Please login.");
+      navigate("/login");
+    } else {
+      toast.error(res.message || "Registration failed");
     }
   };
 
@@ -212,11 +205,13 @@ const Register = () => {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
                 <span className="text-white text-2xl font-bold">G</span>
               </div>
+
+              
               <h1 className="text-3xl font-bold text-slate-800 mb-2">
                 Welcome to
               </h1>
               <p className="text-slate-500">
-                <span className="text-emerald-600 font-semibold">Groovo</span>
+                <span className="text-2xl text-emerald-600 font-semibold">Groovo</span>
               </p>
             </div>
 
@@ -266,6 +261,30 @@ const Register = () => {
                     value={data.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
+              {/* Phone Input */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="phone"
+                  className="text-sm font-medium text-slate-700 block"
+                >
+                  Phone
+                </label>
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Phone size={20} />
+                  </div>
+                  <input
+                    type="text"
+                    id="phone"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all duration-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-slate-800 placeholder:text-slate-400"
+                    name="phone"
+                    value={data.phone}
+                    onChange={handleChange}
+                    placeholder="Phone number"
                   />
                 </div>
               </div>
@@ -340,7 +359,7 @@ const Register = () => {
               <button
                 disabled={!valideValue}
                 className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2 group ${
-                  valideValue
+                  valideValue && isPhoneValid
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5"
                     : "bg-slate-300 cursor-not-allowed"
                 }`}
